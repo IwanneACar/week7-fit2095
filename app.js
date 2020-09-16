@@ -1,46 +1,37 @@
-let mongoose = require('mongoose');
-let express = require('express');
-let bodyParser = require('body-parser');
-let studentRouter = require('./routers/studentrouter');
-
-let print = console.log;
-
-let teacherRouter = require('./routers/teacherroute.js');
-
-let app = express();
-
-
-
+const bodyParser = require('body-parser');
+const express = require('express');
+const mongoose = require('mongoose');
+const actors = require('./routers/actor');
+const movies = require('./routers/movie');
+const app = express();
 app.listen(8080);
-
 app.use(bodyParser.json());
-
-
-app.use('/teachers', teacherRouter);
-
-let DB_URL = 'mongodb://localhost:27017/week7db';
-
-mongoose.connect(DB_URL, function (err) {
+app.use(bodyParser.urlencoded({ extended: false }));
+mongoose.connect('mongodb://localhost:27017/movies', function (err) {
     if (err) {
-        print('Error connecting to DB');
-    } else
-        print('Connected Successfully');
+        return console.log('Mongoose - connection error:', err);
+    }
+    console.log('Connect Successfully');
 });
+//Configuring Endpoints
+//Actor RESTFul endpoionts 
+app.get('/actors', actors.getAll);
+app.post('/actors', actors.createOne);
+app.get('/actors/:id', actors.getOne);
+app.put('/actors/:id', actors.updateOne);
+app.post('/actors/:id/movies', actors.addMovie);
+app.delete('/actors/:id', actors.deleteOne);
+//Movie RESTFul  endpoints
+app.get('/movies', movies.getAll);
+app.post('/movies', movies.createOne);
+app.get('/movies/:id', movies.getOne);
+app.put('/movies/:id', movies.updateOne);
 
-app.get('/students', studentRouter.getAllStudents);
-app.get('/students/:id', studentRouter.getStudentById);
-app.post('/students', studentRouter.insertStudent);
-app.delete('/students/:id', studentRouter.deleteStudent);
-app.put('/students/:id', studentRouter.updateStudent);
-app.put('/students/:sId/teachers/:tId', studentRouter.addTeacher);
-
-
-
-
-// get /teachers  ==> retrieve all teacher
-// get /teachers/:id ==> retrieve one teacher
-//post /teachers ==> insert new teacher
-//put /teachers/:id ==> update one teacher
-//delete /teachers/:id ==> delete one teacher
-
-// put/teachers/tid/students/sid
+//Lab7
+app.delete('/movies/:id',movies.delbyid);
+app.delete('/actors/delAM/:id',actors.delAM);
+app.delete('/actors/delMinA/:aid/:mid',actors.delMinA);
+app.delete('/movies/delAinM/:mid/:aid',movies.delAinM);
+app.post('/movies/:id/actors', movies.addActor);
+app.get('/actors/:year1/:year2',actors.getByYear);
+app.delete('/movies',movies.delByYear);
